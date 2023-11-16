@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useUser } from '../../context/UserContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import * as constants from '../../utils/constants'
 
 export default function Write() {
   const { userData } = useUser();
@@ -51,7 +52,7 @@ export default function Write() {
     console.log(payload);
     try {
       const response = await axios.post(
-        'http://localhost:5000/publish',
+        constants.FLASK_APP_BASEURL + '/publish',
         {
           data: payload,
         },

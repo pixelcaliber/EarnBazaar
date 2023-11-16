@@ -1,17 +1,20 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './login.css';
-import { useUser } from '../../context/UserContext';
-import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+import './login.css';
+import * as constants from '../../utils/constants'
+import {postRequestHandler} from '../../utils/utils'
+import { useUser } from '../../context/UserContext';
+
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
-  const { userData, setUserData, logIn } = useUser();
 
+  const { userData, logIn } = useUser();
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [loginCredentials, setLoginCredentials] = useState({
     email: '',
     password: '',
   });
@@ -22,23 +25,14 @@ export default function Login() {
     e.preventDefault();
     setError(null);
     try {
-      const response = await axios.post(
-        'http://localhost:5000/login',
-        { data: formData },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-
-      const { userId, username } = response.data;
-      console.log(response.data);
+      const loginEndpoint = constants.FLASK_APP_BASEURL + '/login';
+      const response = await postRequestHandler(loginEndpoint, loginCredentials);
+      const { userId, username } = response
       if (userId && username) {
         logIn({ userId: userId, username: username });
         navigate('/home');
       } else {
-        setError('Invalid response');
+        setError(response);
       }
     } catch (error) {
       setError('Error logging in');
@@ -48,14 +42,13 @@ export default function Login() {
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
-    setFormData((prevFormData) => ({
+    setLoginCredentials((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
   };
 
   return (
-    <>
       <div className="login">
         <span className="loginTitle">Login</span>
         <form className="loginForm">
@@ -63,7 +56,7 @@ export default function Login() {
           <input
             type="text"
             name="email"
-            value={formData.email}
+            value={loginCredentials.email}
             onChange={handleInputChange}
             className="loginInput input-group-text"
             placeholder="Enter your email..."
@@ -72,7 +65,7 @@ export default function Login() {
           <input
             type="password"
             name="password"
-            value={formData.password}
+            value={loginCredentials.password}
             onChange={handleInputChange}
             className="loginInput input-group-text"
             placeholder="Enter your password..."
@@ -98,10 +91,9 @@ export default function Login() {
         </div>
         {error && (
           <span style={{ color: 'red', marginTop: '10px' }}>
-            Something went wrong!
+            {error}
           </span>
         )}
       </div>
-    </>
   );
 }

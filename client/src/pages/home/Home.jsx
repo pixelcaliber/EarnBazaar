@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react';
-import './home.css';
-import React from 'react';
+import axios from "axios";
 
-import axios from 'axios';
-import { useUser } from '../../context/UserContext';
-import { Link } from 'react-router-dom';
-import Events from '../../components/events/Events';
-import { Button } from 'react-bootstrap';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+import "./home.css";
+import { useUser } from "../../context/UserContext";
+import * as constants from "../../utils/constants";
+import { getRequestHandler } from "../../utils/utils";
+import Events from "../../components/events/Events";
+
+import { Button } from "react-bootstrap";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 export default function Home() {
   const [error, setError] = useState(null);
@@ -17,25 +20,27 @@ export default function Home() {
   const { userData } = useUser();
   const config = {
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Bearer ${userData.userId}`,
     },
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+      setError(null);
+      try {
+        const eventsEndpoint = constants.FLASK_APP_BASEURL + "/events";
+        const response = await getRequestHandler(eventsEndpoint, config);
+        console.log(response);
+        setEvents(response);
+      } catch (error) {
+        setError("Error getting events");
+        console.error("Error fetching data:", error);
+      }
+    };
     fetchData();
   }, []);
-  const fetchData = async () => {
-    setError(null);
-    try {
-      const response = await axios.get('http://localhost:5000/events', config);
-      console.log(response.data);
-      setEvents(response.data);
-    } catch (error) {
-      setError('Error getting events');
-      console.error('Error fetching data:', error);
-    }
-  };
+
   return (
     <>
       <Container direction="horizontal">
@@ -62,12 +67,19 @@ export default function Home() {
               </Link>
             </div>
             <br />
+            <div>
+              <Link to="/logout">
+                <Button variant="warning">LogOut</Button>
+              </Link>
+            </div>
+            <br />
           </Col>
           <Col>
             <div className="home">{events && <Events events={events} />}</div>
           </Col>
         </Row>
       </Container>
+
       {/* <div className="home">
         {events &&
           events.map((event) => (

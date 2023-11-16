@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useUser } from '../../context/UserContext';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import * as constants from '../../utils/constants'
 
 export default function Update() {
   const location = useLocation();
@@ -49,7 +50,7 @@ export default function Update() {
   useEffect(() => {
     const getEvent = async () => {
       console.log(path);
-      const urlPath = 'http://localhost:5000' + '/events/' + path;
+      const urlPath = constants.FLASK_APP_BASEURL + '/events/' + path;
       const response = await axios.get(urlPath, config);
       const { title, description, eventRewards, guest, location } =
         response.data.event_details;
@@ -76,7 +77,7 @@ export default function Update() {
     console.log(payload);
     try {
       const response = await axios.post(
-        'http://localhost:5000/events/update/' + path,
+        constants.FLASK_APP_BASEURL + '/events/update/' + path,
         {
           data: payload,
         },

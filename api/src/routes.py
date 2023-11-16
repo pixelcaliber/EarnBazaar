@@ -60,13 +60,13 @@ def login():
         email = data["email"]
         password = data["password"].encode("utf-8")
         user = User.find_by_email(email)
-        if user and user.check_password(password, user.password):
+        if not user:
+            return "User doesn't exists!"
+        if user.check_password(password, user.password):
             session["user_id"] = user.user_id
             response = {"userId": user.user_id, "username": user.username}
             return jsonify(response)
-            # return "login successfull"
-        else:
-            return "login failed"
+        return "Email or Password Wrong!"
     except Exception as e:
         raise e
 

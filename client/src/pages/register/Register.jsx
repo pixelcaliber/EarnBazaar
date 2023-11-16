@@ -1,47 +1,45 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './register.css';
-import axios from 'axios';
+import "./register.css";
+import * as constants from "../../utils/constants";
+import {postRequestHandler} from "../../utils/utils";
+
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    username: '',
-    userType: '',
-    email: '',
-    password: '',
+  const [userCredentials, setUserCredentials] = useState({
+    username: "",
+    userType: "",
+    email: "",
+    password: "",
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevFormData) => ({
+    setUserCredentials((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(false);
+    setError(null);
     try {
-      const response = await axios.post(
-        'http://localhost:5000/register',
-        {
-          data: formData,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
+      const registerEndpoint = constants.FLASK_APP_BASEURL + "/register";
+      const response = await postRequestHandler(
+        registerEndpoint,
+        userCredentials
       );
-      console.log(response.data);
-      response.data && navigate('/login');
+      response === "Registration Successfull"
+        ? navigate("/login")
+        : setError(response);
     } catch (error) {
-      setError(true);
-      console.error('Error fetching data:', error);
+      setError(error);
+      console.error("Error fetching data:", error);
     }
   };
+  
   return (
     <div className="register">
       <span className="registerTitle">Register</span>
@@ -53,13 +51,13 @@ export default function Register() {
           placeholder="Enter your username..."
           onChange={handleInputChange}
           name="username"
-          value={formData.username}
+          value={userCredentials.username}
         />
         <label>Email</label>
         <input
           type="text"
           name="email"
-          value={formData.email}
+          value={userCredentials.email}
           className="registerInput input-group-text"
           placeholder="Enter your email..."
           onChange={handleInputChange}
@@ -68,7 +66,7 @@ export default function Register() {
         <input
           type="password"
           name="password"
-          value={formData.password}
+          value={userCredentials.password}
           className="registerInput input-group-text"
           placeholder="Enter your password..."
           onChange={handleInputChange}
@@ -77,7 +75,7 @@ export default function Register() {
         <select
           className="registerInput form-select"
           name="userType"
-          value={formData.userType}
+          value={userCredentials.userType}
           onChange={handleInputChange}
         >
           <option value=""> Select One </option>
@@ -94,9 +92,7 @@ export default function Register() {
         </Link>
       </button>
       {error && (
-        <span style={{ color: 'red', marginTop: '10px' }}>
-          Something went wrong!
-        </span>
+        <span style={{ color: "red", marginTop: "10px" }}>{error}</span>
       )}
     </div>
   );

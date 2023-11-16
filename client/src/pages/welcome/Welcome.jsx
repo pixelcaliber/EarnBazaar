@@ -1,5 +1,5 @@
 import React from "react";
-import "./main.css";
+import "./welcome.css";
 import Card from "react-bootstrap/esm/Card";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -7,15 +7,14 @@ import Col from "react-bootstrap/Col";
 import pic from "./assets/pic.png";
 import { LinkContainer } from "react-router-bootstrap";
 
-function Main() {
+export default function Welcome() {
   return (
-    <div className="Home">
-      <div className="content">
+      <div className="welcome">
         <Container>
           <Row>
             <Col sm={6}>
               <Row>
-                <Container className="content-text">
+                <Container className="welcome-header">
                   Matching developers
                   <br /> with great companies.
                 </Container>
@@ -53,20 +52,17 @@ function Main() {
               </Row>
             </Col>
             <Col sm={6}>
-              <img className="content-pic" src={pic} alt="EB1.0" />
+              <img className="welcome-banner-picture" src={pic} alt="EB1.0" />
             </Col>
           </Row>
           <Row>
             <Col sm={4}>
-              Copyright © 2023 EarnBazaar | Careers
+              Copyright © 2023 EarnBazaar | About
               <br />
               Privacy Policy
             </Col>
           </Row>
         </Container>
       </div>
-    </div>
   );
 }
-
-export default Main;
